@@ -4,8 +4,4 @@ services:
   - docker
 
 script:
-  - wget -O- http://travis.debian.net/script.sh | sh -
-
-branches:
-  except:
-    - /^debian\/\d/
+  - wget -O- https://george-hopkins.github.io/travis-ubuntu/script.sh | sh -
