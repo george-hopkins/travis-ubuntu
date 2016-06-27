@@ -7,18 +7,18 @@
   <link rel="stylesheet" type="text/css" href="media/style.css" media="screen">
 
   <title>
-    travis.debian.net &mdash; Easily build and test your Debian packaging on travis-ci.org
+    travis-ubuntu &mdash; Easily build and test your Ubuntu packaging on travis-ci.org
   </title>
 </head>
 
 <body>
 
-<a id="github" href="https://github.com/lamby/travis.debian.net"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://camo.githubusercontent.com/567c3a48d796e2fc06ea80409cc9dd82bf714434/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f6c6566745f6461726b626c75655f3132313632312e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_left_darkblue_121621.png"></a>
+<a id="github" href="https://github.com/george-hopkins/travis-ubuntu"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://camo.githubusercontent.com/567c3a48d796e2fc06ea80409cc9dd82bf714434/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f6c6566745f6461726b626c75655f3132313632312e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_left_darkblue_121621.png"></a>
 
 <header>
   <div class="container">
-    <h1>travis.debian.net</h1>
-    <h2>Easily build and test your Debian packaging on travis-ci.org</h2>
+    <h1>travis-ubuntu</h1>
+    <h2>Easily build and test your Ubuntu packaging on travis-ci.org. The <a href="http://travis.debian.net/">travis.debian.net</a> for Ubuntu.</h2>
   </div>
 </header>
 
@@ -29,11 +29,12 @@
     </h3>
 
     <p>
-      <tt>travis.debian.net</tt> is a hosted utility to make it easier and
-      cleaner to build and test your Debian packages on the
+      <tt>travis-ubuntu</tt> is a hosted utility to make it easier and
+      cleaner to build and test your Ubuntu packages on the
       <a href="https://travis-ci.org">Travis CI</a> hosted continuous
       integration platform without duplicating scripts or configuration across
-      multiple repositories.
+      multiple repositories. It works the same way as
+      <a href="http://travis.debian.net/">travis.debian.net</a>.
     </p>
 
     <h3 id="quick-setup">
@@ -55,7 +56,7 @@
         <a href="https://honk.sigxcpu.org/piki/projects/git-buildpackage/">git-buildpackage</a>
         branches:
 
-        <pre>$ wget -O.travis.yml <a href="http://travis.debian.net/travis.yml">http://travis.debian.net/travis.yml</a></pre>
+        <pre>$ wget -O.travis.yml <a href="https://george-hopkins.github.io/travis-ubuntu/travis.yml">https://george-hopkins.github.io/travis-ubuntu/travis.yml</a></pre>
         <pre>$ echo 'extend-diff-ignore = "^\.travis\.yml$"' &gt;&gt; <br>      debian/source/options # for "3.0 (quilt)" packages</pre>
       </li>
       <li>
@@ -70,15 +71,13 @@
     </h3>
 
     <p>
-      At it's core <tt>travis.debian.net</tt> is a hosted shell script that is
+      At it's core <tt>travis-ubuntu</tt> is a hosted shell script that is
       executed within the Travis CI test environment.
     </p>
 
     <p>
-      First, <tt>travis.debian.net</tt> detects which release of Debian
-      the branch is targeting based on the current branch name. The
-      <em>experimental</em> suite and all varieties of backports are
-      intelligently detected.
+      First, <tt>travis-ubuntu</tt> detects which release of Ubuntu
+      the branch is targeting based on the current branch name.
     </p>
 
     </p>
@@ -118,8 +117,9 @@
         TRAVIS_DEBIAN_DISTRIBUTION
       </dt>
       <dd>
-        Which distribution of Debian the package should be built in. By
-        default, this is automatically detected from the branch name.
+        Which distribution of Ubuntu the package should be built in. By
+        default, this is automatically detected from the branch name. To build the package
+        on Xenial Xerus use <tt>ubuntu/xenial</tt>.
       </dd>
       <dt>
         TRAVIS_DEBIAN_BACKPORTS
@@ -141,15 +141,14 @@
         TRAVIS_DEBIAN_EXPERIMENTAL
       </dt>
       <dd>
-        When <tt>true</tt>, Debian's <em>experimental</em> repository will be
-        enabled. If <tt>TRAVIS_DEBIAN_DISTRIBUTION</tt> is not set, the value
-        is automatically detected.
+        When <tt>true</tt>, Ubuntu's pre-release updates (<tt>-proposed</tt>) will be
+        enabled.
       </dd>
       <dt>
         TRAVIS_DEBIAN_MIRROR
       </dt>
       <dd>
-        Which Debian mirror to use. By default, <tt>ftp.de.debian.org</tt> is used.
+        Which Debian mirror to use. By default, <tt>archive.ubuntu.com</tt> is used.
       </dd>
       <dt>
         TRAVIS_DEBIAN_TARGET_DIR
@@ -206,11 +205,11 @@
 
     <ul>
       <li>
-        <a href="https://github.com/lamby/travis.debian.net">Source</a>
+        <a href="https://github.com/george-hopkins/travis-ubuntu">Source</a>
         &bull;
-        <a href="https://github.com/lamby/travis.debian.net/issues">Issues</a>
+        <a href="https://github.com/george-hopkins/travis-ubuntu/issues">Issues</a>
         &bull;
-        <a href="https://github.com/lamby/travis.debian.net/pulls">Pull requests</a>
+        <a href="https://github.com/george-hopkins/travis-ubuntu/pulls">Pull requests</a>
       </li>
       <li>
         <a href="https://travis-ci.org">Travis CI</a>
@@ -227,7 +226,9 @@
     <p>
       Copyright &copy; 2015, 2016
       <a href="https://chris-lamb.co.uk/">Chris Lamb</a>
-      &lt;<a href="mailto:lamby@debian.org" class="user-mention">lamby@debian.org</a>&gt;
+      (see <a href="http://travis.debian.net/">travis.debian.net</a>)<br>
+      Copyright &copy; 2016
+      <a href="https://github.com/george-hopkins">George Hopkins</a>
     </p>
 
     <p>
