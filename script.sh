@@ -1,6 +1,7 @@
 #!/bin/sh
 #
 # Copyright (C) 2015 Chris Lamb <lamby@debian.org>
+# Copyright (C) 2016 George Hopkins <george-hopkins@null.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -32,9 +33,9 @@ Error () {
 SOURCE="$(dpkg-parsechangelog --show-field Source)"
 VERSION="$(dpkg-parsechangelog --show-field Version)"
 
-Info "Starting build of ${SOURCE} using travis.debian.net"
+Info "Starting build of ${SOURCE} using travis-ubuntu"
 
-TRAVIS_DEBIAN_MIRROR="${TRAVIS_DEBIAN_MIRROR:-http://ftp.de.debian.org/debian}"
+TRAVIS_DEBIAN_MIRROR="${TRAVIS_DEBIAN_MIRROR:-http://archive.ubuntu.com/ubuntu}"
 TRAVIS_DEBIAN_BUILD_DIR="${TRAVIS_DEBIAN_BUILD_DIR:-/build}"
 TRAVIS_DEBIAN_TARGET_DIR="${TRAVIS_DEBIAN_TARGET_DIR:-../}"
 TRAVIS_DEBIAN_NETWORK_ENABLED="${TRAVIS_DEBIAN_NETWORK_ENABLED:-false}"
@@ -56,8 +57,6 @@ then
 		TRAVIS_DEBIAN_DISTRIBUTION="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo master)"
 	fi
 
-	TRAVIS_DEBIAN_DISTRIBUTION="${TRAVIS_DEBIAN_DISTRIBUTION##debian/}"
-
 	# Detect backports
 	case "${TRAVIS_DEBIAN_DISTRIBUTION}" in
 		*-backports)
@@ -69,33 +68,14 @@ then
 			TRAVIS_DEBIAN_DISTRIBUTION="${TRAVIS_DEBIAN_DISTRIBUTION##backports/}"
 			;;
 	esac
-
-	# Detect codenames
-	case "${TRAVIS_DEBIAN_DISTRIBUTION}" in
-		oldstable)
-			TRAVIS_DEBIAN_DISTRIBUTION="wheezy"
-			;;
-		stable)
-			TRAVIS_DEBIAN_DISTRIBUTION="jessie"
-			;;
-		testing)
-			TRAVIS_DEBIAN_DISTRIBUTION="stretch"
-			;;
-		unstable|master)
-			TRAVIS_DEBIAN_DISTRIBUTION="sid"
-			;;
-		experimental)
-			TRAVIS_DEBIAN_DISTRIBUTION="sid"
-			TRAVIS_DEBIAN_EXPERIMENTAL="true"
-			;;
-	esac
 fi
 
 case "${TRAVIS_DEBIAN_DISTRIBUTION}" in
-	wheezy)
-		TRAVIS_DEBIAN_GIT_BUILDPACKAGE="${TRAVIS_DEBIAN_GIT_BUILDPACKAGE:-git-buildpackage}"
-		;;
-	jessie|stretch|sid)
+	ubuntu/trusty)
+	ubuntu/utopic)
+	ubuntu/vivid)
+	ubuntu/wily)
+	ubuntu/xenial)
 		TRAVIS_DEBIAN_GIT_BUILDPACKAGE="${TRAVIS_DEBIAN_GIT_BUILDPACKAGE:-gbp buildpackage}"
 		;;
 	*)
@@ -105,13 +85,12 @@ case "${TRAVIS_DEBIAN_DISTRIBUTION}" in
 esac
 
 case "${TRAVIS_DEBIAN_DISTRIBUTION}" in
-	sid)
-		TRAVIS_DEBIAN_SECURITY_UPDATES="${TRAVIS_DEBIAN_SECURITY_UPDATES:-false}"
-		;;
 	*)
 		TRAVIS_DEBIAN_SECURITY_UPDATES="${TRAVIS_DEBIAN_SECURITY_UPDATES:-true}"
 		;;
 esac
+
+TRAVIS_DEBIAN_DISTRIBUTION="${TRAVIS_DEBIAN_DISTRIBUTION##ubuntu/}"
 
 Info "Using distribution: ${TRAVIS_DEBIAN_DISTRIBUTION}"
 Info "Backports enabled: ${TRAVIS_DEBIAN_BACKPORTS}"
@@ -134,7 +113,7 @@ ${SOURCE} (${VERSION}+travis${TRAVIS_BUILD_NUMBER}) UNRELEASED; urgency=medium
 
   * Automatic build.
 
- -- travis.debian.net <nobody@nobody>  $(date --utc -R)
+ -- travis-ubuntu <nobody@nobody>  $(date --utc -R)
 
 EOF
 	cat <debian/changelog >>debian/changelog.new
@@ -146,32 +125,37 @@ fi
 ## Build ######################################################################
 
 cat >Dockerfile <<EOF
-FROM debian:${TRAVIS_DEBIAN_DISTRIBUTION}
-RUN echo "deb ${TRAVIS_DEBIAN_MIRROR} ${TRAVIS_DEBIAN_DISTRIBUTION} main" > /etc/apt/sources.list
-RUN echo "deb-src ${TRAVIS_DEBIAN_MIRROR} ${TRAVIS_DEBIAN_DISTRIBUTION} main" >> /etc/apt/sources.list
+FROM ubuntu:${TRAVIS_DEBIAN_DISTRIBUTION}
+RUN echo "deb ${TRAVIS_DEBIAN_MIRROR} ${TRAVIS_DEBIAN_DISTRIBUTION} main restricted universe multiverse" > /etc/apt/sources.list
+RUN echo "deb-src ${TRAVIS_DEBIAN_MIRROR} ${TRAVIS_DEBIAN_DISTRIBUTION} main restricted universe multiverse" >> /etc/apt/sources.list
+EOF
+
+cat >>Dockerfile <<EOF
+RUN echo "deb ${TRAVIS_DEBIAN_MIRROR} ${TRAVIS_DEBIAN_DISTRIBUTION}-updates main restricted universe multiverse" >> /etc/apt/sources.list
+RUN echo "deb-src ${TRAVIS_DEBIAN_MIRROR} ${TRAVIS_DEBIAN_DISTRIBUTION}-updates main restricted universe multiverse" >> /etc/apt/sources.list
 EOF
 
 if [ "${TRAVIS_DEBIAN_BACKPORTS}" = true ]
 then
 	cat >>Dockerfile <<EOF
-RUN echo "deb ${TRAVIS_DEBIAN_MIRROR} ${TRAVIS_DEBIAN_DISTRIBUTION}-backports main" >> /etc/apt/sources.list
-RUN echo "deb-src ${TRAVIS_DEBIAN_MIRROR} ${TRAVIS_DEBIAN_DISTRIBUTION}-backports main" >> /etc/apt/sources.list
+RUN echo "deb ${TRAVIS_DEBIAN_MIRROR} ${TRAVIS_DEBIAN_DISTRIBUTION}-backports main restricted universe multiverse" >> /etc/apt/sources.list
+RUN echo "deb-src ${TRAVIS_DEBIAN_MIRROR} ${TRAVIS_DEBIAN_DISTRIBUTION}-backports main restricted universe multiverse" >> /etc/apt/sources.list
 EOF
 fi
 
 if [ "${TRAVIS_DEBIAN_SECURITY_UPDATES}" = true ]
 then
 	cat >>Dockerfile <<EOF
-RUN echo "deb http://security.debian.org/ ${TRAVIS_DEBIAN_DISTRIBUTION}/updates main" >> /etc/apt/sources.list
-RUN echo "deb-src http://security.debian.org/ ${TRAVIS_DEBIAN_DISTRIBUTION}/updates main" >> /etc/apt/sources.list
+RUN echo "deb http://security.ubuntu.com/ubuntu ${TRAVIS_DEBIAN_DISTRIBUTION}-security main restricted universe multiverse" >> /etc/apt/sources.list
+RUN echo "deb-src http://security.ubuntu.com/ubuntu ${TRAVIS_DEBIAN_DISTRIBUTION}-security main restricted universe multiverse" >> /etc/apt/sources.list
 EOF
 fi
 
 if [ "${TRAVIS_DEBIAN_EXPERIMENTAL}" = true ]
 then
 	cat >>Dockerfile <<EOF
-RUN echo "deb ${TRAVIS_DEBIAN_MIRROR} experimental main" >> /etc/apt/sources.list
-RUN echo "deb-src ${TRAVIS_DEBIAN_MIRROR} experimental main" >> /etc/apt/sources.list
+RUN echo "deb ${TRAVIS_DEBIAN_MIRROR} ${TRAVIS_DEBIAN_DISTRIBUTION}-proposed main restricted universe multiverse" >> /etc/apt/sources.list
+RUN echo "deb-src ${TRAVIS_DEBIAN_MIRROR} ${TRAVIS_DEBIAN_DISTRIBUTION}-proposed main restricted universe multiverse" >> /etc/apt/sources.list
 EOF
 fi
 
@@ -205,7 +189,7 @@ EOF
 Info "Using Dockerfile:"
 sed -e 's@^@  @g' Dockerfile
 
-TAG="travis.debian.net/${SOURCE}"
+TAG="travis-ubuntu/${SOURCE}"
 
 Info "Building Docker image ${TAG}"
 docker build --tag=${TAG} .
