@@ -71,11 +71,7 @@ then
 fi
 
 case "${TRAVIS_DEBIAN_DISTRIBUTION}" in
-	ubuntu/trusty)
-	ubuntu/utopic)
-	ubuntu/vivid)
-	ubuntu/wily)
-	ubuntu/xenial)
+	ubuntu/trusty|ubuntu/utopic|ubuntu/vivid|ubuntu/wily|ubuntu/xenial|ubuntu/yakkety)
 		TRAVIS_DEBIAN_GIT_BUILDPACKAGE="${TRAVIS_DEBIAN_GIT_BUILDPACKAGE:-gbp buildpackage}"
 		;;
 	*)
