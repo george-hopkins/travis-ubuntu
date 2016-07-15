@@ -68,6 +68,23 @@ then
 			TRAVIS_DEBIAN_DISTRIBUTION="${TRAVIS_DEBIAN_DISTRIBUTION##backports/}"
 			;;
 	esac
+
+	# Detect codenames
+	case "${TRAVIS_DEBIAN_DISTRIBUTION}" in
+		oldstable)
+			TRAVIS_DEBIAN_DISTRIBUTION="ubuntu/trusty"
+			;;
+		stable)
+			TRAVIS_DEBIAN_DISTRIBUTION="ubuntu/xenial"
+			;;
+		master)
+			TRAVIS_DEBIAN_DISTRIBUTION="ubuntu/xenial"
+			;;
+		experimental)
+			TRAVIS_DEBIAN_DISTRIBUTION="ubuntu/yakkety"
+			TRAVIS_DEBIAN_EXPERIMENTAL="true"
+			;;
+	esac
 fi
 
 case "${TRAVIS_DEBIAN_DISTRIBUTION}" in
